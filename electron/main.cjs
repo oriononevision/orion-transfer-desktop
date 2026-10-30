@@ -209,6 +209,102 @@ function registerIpc() {
       truncated: walked.truncated,
     }
   })
+
+  /**
+   * Ouvre la page Orion Transfer (navigateur) pour Google,
+   * puis récupère la session via un callback HTTP local.
+   */
+  ipcMain.handle('orion-transfer:open-auth', async (_e, input) => {
+    const url = typeof input?.url === 'string' ? input.url.trim() : ''
+    if (!url) return { ok: false, error: 'URL manquante' }
+
+    return new Promise((resolve) => {
+      let settled = false
+      let server = null
+      let timer = null
+
+      const finish = (payload) => {
+        if (settled) return
+        settled = true
+        if (timer) clearTimeout(timer)
+        if (server) {
+          try {
+            server.close()
+          } catch {
+            /* ignore */
+          }
+          server = null
+        }
+        if (payload?.ok && mainWindow && !mainWindow.isDestroyed()) {
+          if (mainWindow.isMinimized()) mainWindow.restore()
+          mainWindow.focus()
+        }
+        resolve(payload)
+      }
+
+      server = http.createServer((req, res) => {
+        try {
+          const u = new URL(req.url || '/', 'http://127.0.0.1')
+          if (!u.pathname.startsWith('/auth/')) {
+            res.writeHead(404)
+            res.end()
+            return
+          }
+          const type = u.searchParams.get('type')
+          const access = u.searchParams.get('access_token')
+          const refresh = u.searchParams.get('refresh_token')
+          res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' })
+          res.end(
+            '<!doctype html><html lang="fr"><head><meta charset="utf-8"/><title>ORION Transfer</title>' +
+              '<style>body{font-family:system-ui,sans-serif;background:#06080f;color:#e8ecf4;display:grid;place-items:center;min-height:100vh;margin:0;padding:24px;text-align:center}' +
+              'p{max-width:28rem;line-height:1.5;opacity:.9}</style></head><body>' +
+              '<p>Connexion réussie. Vous pouvez fermer cet onglet et revenir à <strong>ORION Transfer</strong>.</p>' +
+              '<script>window.setTimeout(function(){window.close()},400)</script></body></html>',
+          )
+          if (type === 'orion_handoff' && access && refresh) {
+            const callbackUrl =
+              `http://127.0.0.1/auth/callback?` +
+              new URLSearchParams({
+                access_token: access,
+                refresh_token: refresh,
+                type: 'orion_handoff',
+              }).toString()
+            finish({ ok: true, callbackUrl })
+          }
+        } catch (err) {
+          res.writeHead(500)
+          res.end(String(err))
+        }
+      })
+
+      server.once('error', (err) => {
+        finish({ ok: false, error: String(err) })
+      })
+
+      server.listen(0, '127.0.0.1', () => {
+        const addr = server.address()
+        const port = addr && typeof addr === 'object' ? addr.port : 0
+        if (!port) {
+          finish({ ok: false, error: 'Port callback indisponible' })
+          return
+        }
+        try {
+          const bridge = new URL(url)
+          bridge.searchParams.set('return', `http://127.0.0.1:${port}/auth/callback`)
+          shell.openExternal(bridge.toString()).catch((err) => {
+            finish({ ok: false, error: String(err) })
+          })
+        } catch (err) {
+          finish({ ok: false, error: String(err) })
+        }
+      })
+
+      timer = setTimeout(
+        () => finish({ ok: false, cancelled: true, error: 'Délai de connexion dépassé' }),
+        5 * 60 * 1000,
+      )
+    })
+  })
 }
 
 app.whenReady().then(async () => {

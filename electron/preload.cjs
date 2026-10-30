@@ -10,4 +10,6 @@ contextBridge.exposeInMainWorld('orionDesktop', {
   },
   /** Dialogue natif + lecture disque (gros dossiers). */
   openFolderWorkspace: () => ipcRenderer.invoke('orion-transfer:open-folder'),
+  /** Connexion Google via la page web ORION, puis retour vers le logiciel. */
+  openExternalAuth: (input) => ipcRenderer.invoke('orion-transfer:open-auth', input),
 })
