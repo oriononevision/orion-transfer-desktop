@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <!-- ORION Transfer — fond jaune / ambre -->
+  <rect width="512" height="512" rx="112" fill="#F59E0B"/>
+  <g transform="translate(0 0) scale(8)">
+    <path d="M44.8 19.2 A18 18 0 0 1 44.8 44.8" stroke="#06080F" stroke-width="1.55" stroke-linecap="round"/>
+    <path d="M19.2 44.8 A18 18 0 0 1 19.2 19.2" stroke="#06080F" stroke-width="1.55" stroke-linecap="round"/>
+    <path
+      d="M32 4
+         C33.1 23.4 41.2 31.2 60 32
+         C41.2 32.8 33.1 40.6 32 60
+         C30.9 40.6 22.8 32.8 4 32
+         C22.8 31.2 30.9 23.4 32 4Z"
+      fill="#06080F"
+    />
+  </g>
+</svg>

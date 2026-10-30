@@ -12,7 +12,8 @@
     "build": "vite build",
     "start": "electron .",
     "pack": "npm run build && electron-builder --dir",
-    "dist": "npm run build && electron-builder"
+    "dist": "npm run build && electron-builder",
+    "icons": "node scripts/make-icons.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",
@@ -29,6 +30,8 @@
     "concurrently": "^9.2.1",
     "electron": "^39.2.7",
     "electron-builder": "^26.0.12",
+    "sharp": "^0.35.5",
+    "to-ico": "^1.1.5",
     "typescript": "~6.0.3",
     "vite": "^8.3.4",
     "wait-on": "^9.0.1"
@@ -47,7 +50,9 @@
     ],
     "icon": "build/icon.ico",
     "win": {
-      "target": ["nsis"],
+      "target": [
+        "nsis"
+      ],
       "icon": "build/icon.ico",
       "artifactName": "ORION-Transfer-Setup-${version}.${ext}"
     },
