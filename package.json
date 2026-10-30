@@ -1,7 +1,7 @@
 {
   "name": "orion-transfer-desktop",
   "productName": "ORION Transfer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "type": "module",
   "description": "ORION Transfer — application bureau (fichiers, dossiers, code partagé natif)",
@@ -12,10 +12,11 @@
     "build": "vite build",
     "start": "electron .",
     "pack": "npm run build && electron-builder --dir",
-    "dist": "npm run build && electron-builder",
-    "dist:win": "npm run build && electron-builder --win",
+    "dist": "npm run installer-assets && npm run build && electron-builder",
+    "dist:win": "npm run installer-assets && npm run build && electron-builder --win",
     "dist:mac": "npm run build && electron-builder --mac",
     "icons": "node scripts/make-icons.mjs",
+    "installer-assets": "node scripts/make-installer-assets.mjs",
     "publish:web": "node scripts/copy-installer.mjs"
   },
   "dependencies": {
@@ -42,6 +43,7 @@
   "build": {
     "appId": "com.orion.transfer.desktop",
     "productName": "ORION Transfer",
+    "copyright": "Copyright © ORION",
     "directories": {
       "output": "release",
       "buildResources": "build"
@@ -71,10 +73,25 @@
     },
     "nsis": {
       "oneClick": false,
+      "perMachine": false,
       "allowToChangeInstallationDirectory": true,
+      "allowElevation": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "ORION Transfer",
+      "uninstallDisplayName": "ORION Transfer",
+      "installerLanguages": [
+        "fr_FR"
+      ],
+      "multiLanguageInstaller": true,
+      "displayLanguageSelector": false,
+      "runAfterFinish": true,
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico",
-      "installerHeaderIcon": "build/icon.ico"
+      "installerHeaderIcon": "build/icon.ico",
+      "installerSidebar": "build/installerSidebar.bmp",
+      "uninstallerSidebar": "build/uninstallerSidebar.bmp",
+      "include": "build/installer.nsh"
     }
   }
 }
